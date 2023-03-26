@@ -1,4 +1,0 @@
-comments = "//"
-ignored_dirs = ["ignored_test"]
-ignored_files = []
-using_git = true
