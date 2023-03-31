@@ -1,5 +1,5 @@
-single_comments = "//"
-multi_comments = ['/*', '*/']
-ignored_dirs = ['ignored_test']
-file_extensions = ['.cpp', '.h']
+single_comments = "# "
+multi_comments = ['"""']
+ignored_dirs = []
+file_extensions = ['.py']
 using_git = true

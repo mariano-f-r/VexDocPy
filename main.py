@@ -1,17 +1,25 @@
 import os
+from sys import exit
 import os.path as path
 import tomllib
 
 project_root = os.getcwd()
-data = {}
+config = {}
+# STARTVEXDOC
+# TITLE Config Parsing
+"""startsummary
+This section handles parsing the config file,
+and creating one if does not exist.
+endsummary"""
 try:
     with open('VexDoc.toml', 'rb') as config:
-        data = tomllib.load(config)
+        config = tomllib.load(config)
 except FileNotFoundError:
     print("No config file found, creating one...")
     single_comments = input("""\
 Please enter the characters used to denote \
-a single-line comment in this project's language:\n
+a single-line comment in this project's language \
+(this is how VexDoc will detect when to start documenting):\n
 """)
     multi_comments = input("""\
 Please enter the characters used to denote \
@@ -28,23 +36,32 @@ Please enter the file extension separated by spaces\n
             config.write('using_git = true\n')
 
     with open('VexDoc.toml', 'rb') as config:
-        data = tomllib.load(config)
+        config = tomllib.load(config)
 
 target_files = []
+# ENDVEXDOC
 
+# STARTVEXDOC
+# TITLE File Parsing
+"""startsummary
+This next part loops through all files in the project directory,
+checking them against the config file to make sure everything matches up
+endsummary"""
 try:
     for directory, subdirectories, files in os.walk(project_root):
-        if data["using_git"]:
+        if config["using_git"]:
             if '.git' in directory:
                 continue
-        if path.basename(directory) in data["ignored_dirs"] or path.basename(directory) == 'docs':
+        if path.basename(directory) in config["ignored_dirs"] or path.basename(directory) == 'docs':
             continue
         # print(f'{directory}\n{subdirectories}\n{files}')
         for file in files:
-            if file[file.rindex('.'):] in data["file_extensions"]:
+            if file[file.rindex('.'):] in config["file_extensions"]:
                 target_files.append(path.join(path.relpath(directory), file))
-except TypeError:
+except KeyError:
     print("Error. Please verify your configuration file is correctly written")
+    exit(1)
+# ENDVEXDOC
 
 print(target_files)
 
@@ -59,18 +76,68 @@ for file in target_files:
             open(path.join(project_root, 'docs/', path.dirname(file), name+'_'+extension[1:]+'_documentation.html'), 'w') as output_file:
         output_file.write(
             f"""
+<!DOCTYPE html>
 <html>
     <head>
-        <title>VexDoc</title>
+        <title>Docs from {name+extension}</title>
         <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+        <style>
+            code {{
+                font-size: 0.9rem;
+            }}
+            body {{
+                grid-template-columns: 1fr 90% 1fr;
+            }}
+        </style>
     </head>
     <body>
         <header>
             <h1>Documentation from {name+extension}</h1>
         </header>
-    </body>
-</html>
+        <p>The following code is found at {project_root + file[1:]}</p>
 """
         )
-        # for line in input_file:
-        # print(line)
+        reading_vexdoc = False
+        reading_summary = False
+        for line in input_file:
+            if line == f'{config["single_comments"]}STARTVEXDOC\n':
+                reading_vexdoc = True
+                output_file.write(
+                    """
+        <section>
+"""
+                )
+                continue
+            elif line == f"{config['single_comments']}ENDVEXDOC\n":
+                output_file.write(
+                    """\
+            </code></pre>
+        </section>
+"""
+                )
+                reading_vexdoc = False
+
+            if reading_vexdoc:
+                if line.startswith(f"{config['single_comments']}TITLE"):
+                    output_file.write(
+                        f"<h2>{line[len(config['single_comments']+'TITLE'):len(line)-1]}</h2>\n")
+                    continue
+                elif line.lower().startswith(f"{config['multi_comments'][0]}startsummary"):
+                    reading_summary = True
+                    output_file.write(
+                        """
+            <p>
+"""
+                    )
+                    continue
+                elif line.lower().startswith(f"endsummary{config['multi_comments'][-1]}"):
+                    reading_summary = False
+                    output_file.write(
+                        """
+            </p>
+            <pre><code>\
+"""
+                    )
+                    continue
+
+                output_file.write(f"{line}")
