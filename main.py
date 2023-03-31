@@ -83,7 +83,7 @@ for file in target_files:
         <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
         <style>
             code {{
-                font-size: 0.9rem;
+                font-size: 0.8rem;
             }}
             body {{
                 grid-template-columns: 1fr 90% 1fr;
@@ -100,7 +100,7 @@ for file in target_files:
         reading_vexdoc = False
         reading_summary = False
         for line in input_file:
-            if line == f'{config["single_comments"]}STARTVEXDOC\n':
+            if line == f'{config["single_comments"]} STARTVEXDOC\n':
                 reading_vexdoc = True
                 output_file.write(
                     """
@@ -108,7 +108,7 @@ for file in target_files:
 """
                 )
                 continue
-            elif line == f"{config['single_comments']}ENDVEXDOC\n":
+            elif line == f"{config['single_comments']} ENDVEXDOC\n":
                 output_file.write(
                     """\
             </code></pre>
@@ -118,9 +118,9 @@ for file in target_files:
                 reading_vexdoc = False
 
             if reading_vexdoc:
-                if line.startswith(f"{config['single_comments']}TITLE"):
+                if line.startswith(f"{config['single_comments']} TITLE"):
                     output_file.write(
-                        f"<h2>{line[len(config['single_comments']+'TITLE'):len(line)-1]}</h2>\n")
+                        f"<h2>{line[len(config['single_comments']+' TITLE'):len(line)-1]}</h2>\n")
                     continue
                 elif line.lower().startswith(f"{config['multi_comments'][0]}startsummary"):
                     reading_summary = True

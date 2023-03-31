@@ -1,4 +1,4 @@
-single_comments = "# "
+single_comments = "#"
 multi_comments = ['"""']
 ignored_dirs = []
 file_extensions = ['.py']
