@@ -5,7 +5,7 @@ It relies only on the standard Python library, to make it as portable as possibl
 
 ## Installation
 Please ensure you have a version of Python installed. If you are on Linux like me, you do not have to worry.
-Otherwise, please make your way to (the official Python website)[https://python.org] and install the appropriate executable.
+Otherwise, please make your way to [the official Python website](https://python.org) and install the appropriate executable.
 
 Once you have done that, open the terminal and clone the repository in a location OUTSIDE the project you wish to document by running this command:
 ```
@@ -20,7 +20,7 @@ python3 <absolute or relative path to script>
 ```
 
 At this point, VexDoc will scaffold out a config file if none is found.
-VexDoc's config is written in (TOML)[https://toml.io] and has 5 fields:
+VexDoc's config is written in [TOML](https://toml.io) and has 5 fields:
 | Key   | Meaning   |
 |--------------- | --------------- |
 | `single_comments` | This value is what VexDoc looks for when starting a documentation block, reading the title of a documentation block, and ending a documentation block |
