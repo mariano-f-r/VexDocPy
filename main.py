@@ -1,5 +1,4 @@
 import os
-from sys import exit
 import os.path as path
 import tomllib
 
@@ -12,8 +11,8 @@ This section handles parsing the config file,
 and creating one if does not exist.
 endsummary"""
 try:
-    with open('VexDoc.toml', 'rb') as config:
-        config = tomllib.load(config)
+    with open('VexDoc.toml', 'rb') as config_file:
+        config = tomllib.load(config_file)
 except FileNotFoundError:
     print("No config file found, creating one...")
     single_comments = input("""\
@@ -29,14 +28,16 @@ a multi-line comment in this project's language (separated by spaces if there ar
     file_extension = input("""\
 Please enter the file extension separated by spaces\n
     """).split()
-    with open('VexDoc.toml', 'w') as config:
-        config.write(
+    with open('VexDoc.toml', 'w') as config_file:
+        config_file.write(
             f'single_comments = "{single_comments}"\nmulti_comments = {multi_comments}\nignored_dirs = []\nfile_extensions = {file_extension}\n')
         if path.exists(".git/"):
-            config.write('using_git = true\n')
+            config_file.write('using_git = true\n')
+        else:
+            config_file.write('using_git = false\n')
 
-    with open('VexDoc.toml', 'rb') as config:
-        config = tomllib.load(config)
+    with open('VexDoc.toml', 'rb') as config_file:
+        config = tomllib.load(config_file)
 
 target_files = []
 # ENDVEXDOC
@@ -73,6 +74,21 @@ for target in target_files:
 if not path.exists(path.join(project_root, "docs/")):
     os.mkdir(path.join(project_root, "docs"))
 
+# Generate Table of Contents
+table_of_contents = "<h2>Table of Contents</h2><ul>"
+for root, dirs, files in os.walk(project_root):
+    if root != project_root:
+        parent_dir = os.path.relpath(root, project_root)
+        table_of_contents += f'<li><a href="{
+            parent_dir}/">Parent Directory</a></li>'
+
+    for file in files:
+        file_path = os.path.relpath(os.path.join(root, file), project_root)
+        table_of_contents += f'<li><a href="{file_path}">{file_path}</a></li>'
+
+table_of_contents += "</ul>"
+
+# Write documentation files
 for file in target_files:
     name, extension = path.splitext(path.basename(file))
     if not path.exists(path.join(project_root, 'docs', path.dirname(file))):
@@ -100,6 +116,8 @@ for file in target_files:
             <h1>Documentation from {name+extension}</h1>
         </header>
         <p>The following code is found at {project_root + file[1:]}</p>
+
+        {table_of_contents}
 """
         )
         has_vexdoc = False
