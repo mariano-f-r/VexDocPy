@@ -56,14 +56,19 @@ try:
             continue
         # print(f'{directory}\n{subdirectories}\n{files}')
         for file in files:
-            if file[file.rindex('.'):] in config["file_extensions"]:
+            if file.rfind('.') != -1 and file[file.rindex('.'):] in config["file_extensions"]:
+                print(f"Documenting {file}")
                 target_files.append(path.join(path.relpath(directory), file))
+            else:
+                print(f"Ignoring {file}")
 except KeyError:
     print("Error. Please verify your configuration file is correctly written")
     exit(1)
 # ENDVEXDOC
 
-print(target_files)
+print("The following files have been documented:")
+for target in target_files:
+    print(f"\t{target}")
 
 if not path.exists(path.join(project_root, "docs/")):
     os.mkdir(path.join(project_root, "docs"))
@@ -97,10 +102,12 @@ for file in target_files:
         <p>The following code is found at {project_root + file[1:]}</p>
 """
         )
+        has_vexdoc = False
         reading_vexdoc = False
         reading_summary = False
         for line in input_file:
             if line == f'{config["single_comments"]} STARTVEXDOC\n':
+                has_vexdoc = True
                 reading_vexdoc = True
                 output_file.write(
                     """
@@ -141,3 +148,6 @@ for file in target_files:
                     continue
 
                 output_file.write(f"{line}")
+
+        if not has_vexdoc:
+            print(f"NOTICE: {file} has no documentation")
