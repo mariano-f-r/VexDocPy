@@ -1,6 +1,6 @@
 # VexDoc
 
-VexDoc is a small Python script (<150 LOC) meant to help my Vex Robotics team and others at my school easily print out documentation for code to go in their engineering notebooks, as well as making documentation easy (by letting you do it as you go).
+VexDoc is a small Python script (<200 LOC) meant to help my Vex Robotics team and others at my school easily print out documentation for code to go in their engineering notebooks, as well as making documentation easy (by letting you do it as you go).
 It relies only on the standard Python library, to make it as portable as possible (a future version will be written in Rust to improve this).
 
 ## Installation
